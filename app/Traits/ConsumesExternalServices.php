@@ -26,7 +26,7 @@ trait ConsumesExternalServices
     ]);
     $response = $response->getBody()->getContents();
 
-    if(method_exists($this, 'decodeResponse') && $isJsonRequest)
+    if(method_exists($this, 'decodeResponse'))
     {
       $response = $this->decodeResponse($response);
     }

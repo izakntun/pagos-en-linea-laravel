@@ -51,8 +51,7 @@ class PaypalService
     if(session()->has('approvalId'))
     {
       $approvalId = session()->get('approvalId');
-      $payment = json_decode($this->capturePayment($approvalId));
-      //dd(json_decode($payment));
+      $payment = $this->capturePayment($approvalId);
       $name = $payment->payer->name->given_name;
       $payment = $payment->purchase_units[0]->payments->captures[0]->amount;
       $amount = $payment->value;
@@ -78,7 +77,7 @@ class PaypalService
           0 => [
             'amount' => [
               'currency_code' => strtoupper($currency),
-              'value' => $value
+              'value' => round($value * $factor = $this->resolveFactor($currency)) / $factor
             ]
           ]
         ],
@@ -104,7 +103,17 @@ class PaypalService
       [],
       [
         'Content-Type' => 'application/json'
-      ],
+      ]
     );
+  }
+
+  public function resolveFactor($currency)
+  {
+    $zeroDecimalCurrencies = ['JPY'];
+    if(in_array(strtoupper($currency), $zeroDecimalCurrencies))
+    {
+        return 1;
+    }
+    return 100;
   }
 }
